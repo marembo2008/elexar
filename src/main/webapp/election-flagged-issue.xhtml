@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <p:dataTable value="#{electiveRegionFlaggedIssueController.electiveRegionFlaggedIssues}"
+                   var="issue" style="width: 100%" lazy="true" rows="5"
+                   emptyMessage="We currently have no flagged issue">
+
+      </p:dataTable>
+    </ui:define>
+  </ui:composition>
+</html>

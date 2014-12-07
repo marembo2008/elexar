@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+  <h:head>
+    <title>Elexar - The Election Monitoring</title>
+    <style type="text/css">
+      body table{
+        text-align: left;
+      }
+      .ui-tabs .ui-tabs-nav li a{
+        font-size: 12px;
+      }
+      .hide-column-names thead {
+        display: none;
+      }
+      .ui-datatable th, .ui-datatable tfoot td{
+        white-space: normal;
+      }
+      .ui-panelgrid td{
+        padding: 2px;
+        padding-bottom: 4px;
+        padding-top: 4px;
+      }
+      .td_borderless tr td {
+        border-top-style: none !important;
+        border-bottom-style: none !important;
+        border-left-style: none !important;
+        border-right-style: none !important;
+        border-top-width: 0px !important;
+        border-bottom-width: 0px !important;
+        border-left-width: 0px !important;
+        border-right-width: 0px !important;
+        border-top-color: white !important;
+        border-bottom-color: white !important;
+        border-left-color: white !important;
+        border-right-color: white !important;
+        padding-bottom: 0px !important;
+        background: transparent !important;
+      }
+      .importantpanel_down_less_spread_right{
+        font-size: 15px;
+        -webkit-box-shadow: 3px 0 3px 2px #D7E5F1;
+        -moz-box-shadow: 3px 0 3px 2px #d7e5f1;
+        box-shadow: 3px 0 3px 2px #D7E5F1;
+        position: relative;
+        border-right: 1px solid #CADBEB;
+      }
+      .ui-datatable .ui-datatable-data td, .ui-datatable .ui-datatable-data-empty td {
+        border-bottom-width: 1px;
+        border-bottom-color: gray;
+        border-bottom-style: dotted;
+        border-top-style: none;
+        border-left-style: none;
+        border-right-style: none;
+        border-top-width: 0px;
+        border-left-width: 0px;
+        border-right-width: 0px;
+        border-top-color: white;
+        border-left-color: white;
+        border-right-color: white;
+        vertical-align: middle;
+        padding-bottom: 0px;
+        padding: 0px;
+        margin: 0px;
+        overflow: hidden;
+        text-align: left !important;
+        white-space: normal;
+      }
+      td.ui-panelgrid{
+        text-align: left !important;
+      }
+      .ui-menubar .ui-menu-child .ui-menuitem-link{
+        font-size: 12px;
+      }
+      .ui-menu .ui-menu-list .ui-menuitem{
+        background: #eeeeee !important;
+        margin: 5px;
+      }
+      .ui-menu.ui-megamenu .ui-menu-child > table {
+        width: 170px;
+      }
+      .ui-widget-content {
+        border: 0px none;
+      }
+      tr td{
+        vertical-align: top !important;
+        text-align: left !important;
+      }
+      .ui-datatable-data tr td{
+        vertical-align: middle !important;
+        text-align: left !important;
+      }
+
+      .ex-current-page0{
+        background: #{elexarController.getCurrentMenuBackground("/election-result.xhtml")};
+      }
+      .ex-current-page1{
+        background: #{elexarController.getCurrentMenuBackground("/election-result-dashboard.xhtml")};
+      }
+      .ex-current-page2{
+        background: #{elexarController.getCurrentMenuBackground("/election-turnout.xhtml")}
+      }
+      .ex-current-page3{
+        background: #{elexarController.getCurrentMenuBackground("/election-malpractice.xhtml")}
+      }
+      .ex-current-page4{
+        background: #{elexarController.getCurrentMenuBackground("/election-result-form.xhtml")};
+      }
+      .ex-current-page5{
+        background: #{elexarController.getCurrentMenuBackground("/election-configuration.xhtml")};
+      }
+    </style>
+    <script src="#{electiveRegionController.googleMapJavascriptApi}"
+    type="text/javascript"></script>
+    <script type="text/javascript">
+      //<![CDATA[
+
+      function startLoading(id){
+        var elem = document.getElementById(id);
+        if(elem){
+          elem.style.display = 'block';
+        }
+      }
+      function hideLoading(id){
+        var elem = document.getElementById(id);
+        if(elem){
+          elem.style.display = 'none';
+        }
+      }
+      function onPointClick(map){
+        var latlng = map.latlng;
+        console.log('lat: '+map.mapType);
+      }
+      function executeAsync(func) {
+        setTimeout(func, 0);
+      }
+      function executeAsync(func, timeout) {
+        setTimeout(func, timeout);
+      }
+      function interceptEnterKeyOnInputField(e) {
+        console.log(e.keyCode);
+        if (e.keyCode==13) {
+          e.preventDefault();
+          console.log('Enter spotted: prevent!');
+          temp=document.activeElement;
+          console.log(temp);
+          temp.onChange();
+          return false;
+        }
+      }
+      function refresh(){
+        window.location.assign(getCurrentLocationWithoutQueryParameter());
+      }
+
+      function getCurrentLocationWithoutQueryParameter(){
+        var url = location.href;
+        var i = url.indexOf('?');
+        if(i>-1){
+          url = url.slice(0, i);
+        }
+        return url;
+      }
+      function startTime()
+      {
+        var today=new Date();
+        var h=today.getHours();
+        var m=today.getMinutes();
+        var s=today.getSeconds();
+        // add a zero in front of numbers less than 10
+        m=checkTime(m);
+        s=checkTime(s);
+        document.getElementById('mainMenuForm:currentDate').innerHTML=h+":"+m+":"+s;
+        t=setTimeout(function(){startTime()},500);
+      }
+
+      function checkTime(i)
+      {
+        if (i<10)
+        {
+          i="0" + i;
+        }
+        return i;
+      }
+
+      //]]>
+    </script>
+  </h:head>
+  <h:body onload="startTime()">
+    <f:event type="javax.faces.event.PreRenderViewEvent" listener="#{elexarController.preRenderView}"/>
+    <h:form id="mainMenuForm">
+      <p:megaMenu id="userMenu" styleClass="vertical_top menu_borderless"
+                  style="color: white; width: 99%"
+                  autoDisplay="false">
+        <p:menuitem ajax="false" value="Election Results"  action="#{electionResultController.prepareElectionResultView()}"
+                    styleClass="ex-current-page0"/>
+        <p:menuitem ajax="false" value="Result Dashboard"
+                    action="#{electionResultController.prepareCandidateElectionResultsForElectiveRegionType()}"
+                    styleClass="ex-current-page1"/>
+        <p:menuitem ajax="false" value="Election Turnout"  action="#{electionTurnoutController.prepareElectionTurnoutView()}"
+                    styleClass="ex-current-page2"/>
+        <p:menuitem ajax="false" value="Election Malpractice"  action="/election-malpractice.xhtml?faces-redirect=true"
+                    styleClass="ex-current-page3"/>
+        <p:menuitem ajax="false" value="Election Manual Entry"  action="#{electionResultController.prepareAddElectionResults()}"
+                    styleClass="ex-current-page4"/>
+        <p:menuitem ajax="false" value="Election Configurations"  action="/election-configuration.xhtml?faces-redirect=true"
+                    styleClass="ex-current-page5"/>
+        <p:menuitem >
+          <h:outputText id="currentDate" style="font-size: 25px; font-weight: bolder; color: red; padding-right: 10px; padding-left: 10px" />
+        </p:menuitem>
+      </p:megaMenu>
+    </h:form>
+    <p:messages autoUpdate="true" escape="false"/>
+    <h:panelGroup layout="block" style="width: 98%; margin-left: 1%; margin-right: 1%">
+      <ui:insert name="body"></ui:insert>
+    </h:panelGroup>
+  </h:body>
+</html>
+

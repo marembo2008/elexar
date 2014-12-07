@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <style type="text/css">
+        .row-class{
+          background: #aaaaaa;
+          font-weight: bold;
+          font-size: 20px;
+        }
+        .ui-datatable .ui-datatable-header{
+          text-align: left;
+          font-size: 20px;
+        }
+
+        .ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td{
+          text-align: left;
+        }
+      </style>
+      <script type="text/javascript">
+        function startLoading(){
+          var elem = document.getElementById('electionResultRegionController:busy_image');
+          if(elem){
+            elem.style.display = 'block';
+          }
+        }
+        function hideLoading(){
+          var elem = document.getElementById('electionResultRegionController:busy_image');
+          if(elem){
+            elem.style.display = 'none';
+          }
+        }
+      </script>
+      <h:form>
+        <p:poll interval="30" listener="#{electionResultController.prepareCandidateElectionResultsForElectiveRegionType()}"
+                update=":resultForm" onstart="startLoading()" oncomplete="hideLoading()"/>
+      </h:form>
+      <h:form id="electionResultRegionController">
+        <p:panelGrid columns="2" styleClass="td_borderless" style="width: 100%">
+          <p:selectOneRadio value="#{electionResultController.electiveRegionType}" style="width: 100%">
+            <f:selectItems value="#{electionResultController.electiveRegionTypes}"/>
+            <p:ajax event="change"
+                    listener="#{electionResultController.prepareCandidateElectionResultsForElectiveRegionType()}"
+                    update=":resultForm" onstart="startLoading()" oncomplete="hideLoading()"/>
+          </p:selectOneRadio>
+          <p:graphicImage id="busy_image" value="/resources/image/busy_clock.gif" width="60" height="60" style="display: none"/>
+        </p:panelGrid>
+      </h:form>
+      <h:form id="resultForm" style="width: 100%">
+        <p:dataTable value="#{electionResultController.electionResults}" var="e" style="width: 100%"
+                     sortBy="#{e.resultId}" rowStyleClass="row-class, row-class" rows="1"
+                     paginator="true" paginatorAlwaysVisible="false" paginatorPosition="top"
+                     emptyMessage="No results yet">
+          <f:facet name="header">
+            <h:outputText value="#{electionResultController.electiveRegionType} Election Results"/>
+          </f:facet>
+          <p:column headerText="Elective Region" style="padding-left: 10px">
+            <h:outputText value="#{e.electiveRegion}(#{e.electiveRegion.parentElectiveRegion})"/>
+          </p:column>
+          <p:column headerText="Registered Voters">
+            <h:outputText value="#{e.electiveRegion.registeredVoters}" converter="numberConverter"
+                          style="font-weight: bold;"/>
+          </p:column>
+          <p:column headerText="Voter Turnout">
+            <h:outputText value="#{electionResultController.getVoterTurnout(e)}%"
+                          style="font-weight: bold; color: #ddff00"/>
+          </p:column>
+          <p:summaryRow >
+            <p:column colspan="3" style="padding: 10px;">
+              <p:dataTable value="#{e.candidateElectionResults}" var="r" style="width: 100%" styleClass="hide-column-names">
+                <p:column style="padding: 10px; width: 80px">
+                  <p:graphicImage value="#{candidateController.getCandidatePhoto(r.candidate)}"
+                                  height="50" width="50" style="border-radius: 25px"/>
+                </p:column>
+                <p:column style="width: 80px; padding: 10px">
+                  <p:graphicImage value="#{candidateController.getPartLogo(r.candidate)}"
+                                  height="40" width="40" style="border-radius: 15px"/>
+                </p:column>
+                <p:column style="width: 100%; padding: 10px">
+                  <h:outputText value="#{r.candidate}" style="font-weight: bold; font-size: 16px"/>
+                  <br/>
+                  <h:outputText value="#{r.votesGained}" converter="numberConverter" style="font-weight: bold"/>
+                  <br/>
+                  <h:panelGroup layout="block" style="width: 100%">
+                    <p:separator style="height: 15px; width: #{electionResultController.getPercentageOfVotesGainedStr(e, r)};
+                                 background: #{electionResultController.getBackgroundColor(r)}; float: left"/>
+                    <h:outputText value="#{electionResultController.getPercentageOfVotesGainedStr(e, r)}" style="width: 30px; float: left"/>
+                  </h:panelGroup>
+                </p:column>
+              </p:dataTable>
+            </p:column>
+          </p:summaryRow>
+        </p:dataTable>
+      </h:form>
+    </ui:define>
+  </ui:composition>
+</html>

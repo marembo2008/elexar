@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <h:form>
+        <p:megaMenu autoDisplay="true" >
+          <p:menuitem value="Add Presidential Candidate"
+                      actionListener="#{candidateController.prepareAddPresidentialCandidate()}"
+                      update=":newElectiveRegionForm"/>
+          <p:menuitem value="Add Political Agent"
+                      actionListener="#{politicalAgentController.prepareAddPoliticalAgent()}"
+                      update=":newElectiveRegionForm"/>
+        </p:megaMenu>
+      </h:form>
+      <br/>
+      <h:form id="newElectiveRegionForm"  enctype="multipart/form-data">
+        <p:panel header="#{candidateController.candidate.electiveRegion}" style="width: 99%"
+                 rendered="#{candidateController.addCandidate}">
+          <p:panelGrid columns="2" style="width: 100%; margin-bottom: 10px">
+            <p:outputLabel value="First Name: " for="firstName"/>
+            <p:inputText id="firstName" value="#{candidateController.candidate.firstName}" required="true"/>
+            <p:outputLabel value="Last Name: " for="lastName"/>
+            <p:inputText id="lastName" value="#{candidateController.candidate.lastName}" required="true"/>
+            <p:outputLabel value="Middle Name: " for="middleName"/>
+            <p:inputText id="middleName" value="#{candidateController.candidate.middleName}"/>
+            <p:outputLabel value="Candidate Code (The code used by agents to send results): " for="candidateCode"/>
+            <p:inputText id="candidateCode" value="#{candidateController.candidate.candidateCode}" required="true"
+                         requiredMessage="You must specify the candidate code!"/>
+            <p:outputLabel value="Elective Seat:" for="electiveSeat" />
+            <p:selectOneMenu id="electiveSeat" value="#{candidateController.candidate.electiveSeat}"
+                             style="width: 100%"  >
+              <f:selectItems value="#{candidateController.electiveSeats}"/>
+              <p:ajax event="change" partialSubmit="true" process="@this" listener="#{candidateController.prepareElectiveRegionsForElectiveSeats()}"
+                      update="candidateElectiveRegion"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="Elective Regions (Elective Region for this candidate):" for="candidateElectiveRegion" />
+            <p:selectOneMenu id="candidateElectiveRegion" value="#{candidateController.candidate.electiveRegion}"
+                             style="width: 100%" converter="electiverRegionConverter" >
+              <f:selectItems value="#{candidateController.electiveRegions}"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="Part Color: " for="partyColor"/>
+            <p:colorPicker id="partyColor" value="#{candidateController.candidate.partyColor}" required="true"/>
+          </p:panelGrid>
+          <p:panelGrid id="candidateImagePanel" columns="2" style="width: 100%; margin-bottom: 10px">
+            <h:outputLabel value="Candidate Photo: " />
+            <p:panelGrid columns="1" style="width: 100%">
+              <p:graphicImage id="candidatePhotoImage" value="#{candidateController.candidatePhotoContextUrl}" width="50" height="50"
+                              rendered="#{not empty candidateController.candidate.candidatePhoto}"/>
+              <p:fileUpload id="candidatePhoto" auto="true"
+                            update="candidateImagePanel"
+                            label="Upload Candidate Photo"
+                            fileUploadListener="#{candidateController.handleUploadCandidateImage}"/>
+            </p:panelGrid>
+            <h:outputLabel value="Party Logo " />
+            <p:panelGrid columns="1" style="width: 100%">
+              <p:graphicImage id="partyLogoImage" value="#{candidateController.candidatePoliticalLogoContextUrl}" width="50" height="50"
+                              rendered="#{not empty candidateController.candidate.politicalLogo}"/>
+              <p:fileUpload id="partyLogo" auto="true"
+                            update="candidateImagePanel"
+                            label="Upload Political Party Logo"
+                            fileUploadListener="#{candidateController.handleUploadPartyLogo}"/>
+            </p:panelGrid>
+          </p:panelGrid>
+          <p:commandButton value="Save" style="width: 110px; margin-top: 5px" icon="ui-icon-pencil"
+                           oncomplete="refresh()"
+                           actionListener="#{candidateController.addElectionCandidate()}"/>
+          <p:commandButton value="Cancel" style="width: 110px; margin-top: 5px" icon="ui-icon-closethick"
+                           update="@form" partialSubmit="true" process="@this"
+                           actionListener="#{candidateController.setAddCandidate(false)}"/>
+        </p:panel>
+        <p:panel header="Add Political Agent" style="width: 99%"
+                 rendered="#{politicalAgentController.addPoliticalAgent}">
+          <p:panelGrid columns="2" style="width: 100%; margin-bottom: 10px">
+            <p:outputLabel value="Agent Name: " for="agentName"/>
+            <p:inputText id="agentName" value="#{politicalAgentController.politicalAgent.agentName}"/>
+            <p:outputLabel value="Phonenumber " for="phoneNumber"/>
+            <p:inputText id="phoneNumber" value="#{politicalAgentController.politicalAgent.agentPhoneNumber}"/>
+            <h:outputLabel value="Agent Photo: " />
+            <p:panelGrid id="agentPhotoPanel" columns="1" style="width: 100%">
+              <p:graphicImage id="agentPhoto" value="#{politicalAgentController.politicalAgentImageResourceContextUrl}"
+                              width="50" height="50"
+                              rendered="#{not empty politicalAgentController.politicalAgent.agentPhoto}"/>
+              <p:fileUpload id="agentPhotoUpload" auto="true"
+                            update="agentPhotoPanel"
+                            label="Upload Agent Photo"
+                            fileUploadListener="#{politicalAgentController.handleUploadCandidateImage}"/>
+            </p:panelGrid>
+            <h:outputLabel value="More Polling Station Agents: (e.g. Election Observers):"/>
+            <h:panelGroup id="moreAgentsPanel" layout="block" style="width: 100%">
+              <p:dataTable id="moreAgentsPanelTable" value="#{politicalAgentController.politicalAgent.agents}" var="a">
+                <f:facet name="footer">
+                  <h:panelGroup layout="block" style="width: 100%; text-align: right">
+                    <p:commandButton icon="ui-icon-plusthick" actionListener="#{politicalAgentController.addAgent()}"
+                                     update=":newElectiveRegionForm:moreAgentsPanel"
+                                     title="Add More Polling Station agent(e.g. Election Observers)"/>
+                  </h:panelGroup>
+                </f:facet>
+                <p:column headerText="Agent Name">
+                  <p:inputText value="#{a.agentName}" style="width: 100%"/>
+                </p:column>
+                <p:column headerText="Phone Number">
+                  <p:inputText value="#{a.phoneNumber}" style="width: 100%"/>
+                </p:column>
+                <p:column headerText="Agent type">
+                  <p:selectOneMenu value="#{a.agentType}" style="width: 100%">
+                    <f:selectItems value="#{politicalAgentController.agentTypes}"/>
+                  </p:selectOneMenu>
+                </p:column >
+              </p:dataTable>
+            </h:panelGroup>
+            <p:outputLabel value="Polling Station (Political Station represented by this agent):" for="agentElectiveRegion"/>
+            <p:panelGrid id="agentElectiveRegionPanel" columns="1" style="width: 100%">
+              <p:watermark value="Search Polling Station" for="agentElectiveRegionSearchInput"/>
+              <p:inputText id="agentElectiveRegionSearchInput" value="#{electiveRegionController.electiveRegionName}" style="width: 98%"
+                           onkeypress="if(event.keyCode==13){return false;} return true;" onchange="">
+                <p:ajax partialSubmit="true" process="@this" update=":newElectiveRegionForm:agentElectiveRegionPanel"
+                        event="change"/>
+              </p:inputText>
+              <p:selectOneMenu id="agentElectiveRegion" value="#{politicalAgentController.politicalAgent.electiveRegion}"
+                               style="width: 100%" converter="electiverRegionConverter">
+                <f:selectItems value="#{electiveRegionController.searchPollingStations()}"/>
+              </p:selectOneMenu>
+            </p:panelGrid>
+          </p:panelGrid>
+          <p:commandButton value="Save" style="width: 110px; margin-top: 5px" icon="ui-icon-pencil"
+                           actionListener="#{politicalAgentController.addElectiveRegionPoliticalAgent()}"
+                           oncomplete="refresh()"/>
+          <p:commandButton value="Cancel" style="width: 110px; margin-top: 5px" icon="ui-icon-closethick"
+                           partialSubmit="true" process="@this"
+                           actionListener="#{politicalAgentController.setAddPoliticalAgent(false)}" update="@form"/>
+        </p:panel>
+      </h:form>
+      <p:tabView id="dataView" orientation="left" activeIndex="#{politicalAgentController.currentConfigurationTab}"
+                 style="font-size: 13px">
+        <p:ajax event="tabChange" listener="#{politicalAgentController.configurationTabChanged}"/>
+        <p:tab id="presidentialView" title="Presidential Candidates">
+          <!--presidential candidates;-->
+          <h:form>
+            <p:dataTable id="candidatesView" value="#{candidateController.presidentialCandidates}" var="p" >
+              <p:column headerText="Party Symbol" >
+                <p:graphicImage value="#{candidateController.getPartLogo(p)}" width="60" height="60"  style="background: #{p.partyColor}" />
+              </p:column>
+              <p:column headerText="Candidate Photo" style="padding: 5px;">
+                <p:graphicImage value="#{candidateController.getCandidatePhoto(p)}"
+                                width="60" height="60"
+                                style=" border-radius: 10px;"/>
+              </p:column>
+              <p:column headerText="Candidate Name">
+                <h:outputText value="#{p}"   style="background: #{p.partyColor}"/>
+              </p:column>
+              <p:column headerText="Candidate Code">
+                <h:outputText value="#{p.candidateCode}"   style="background: #{p.partyColor}"/>
+              </p:column>
+              <p:column headerText="Elective Seat">
+                <h:outputText value="#{p.electiveSeat}"  style="background: #{p.partyColor}"/>
+              </p:column>
+              <p:column headerText="Elective Region">
+                <h:outputText value="#{p.electiveRegion}"  style="background: #{p.partyColor}"/>
+              </p:column>
+              <p:column headerText="Party Color (#FFFFFF)">
+                <p:colorPicker value="#{p.partyColor}"/>
+              </p:column>
+              <p:column>
+                <p:commandButton value="Edit" icon="ui-icon-pencil"
+                                 actionListener="#{candidateController.prepareEditPresidentialCandidate(p)}" update=":newElectiveRegionForm"/>
+              </p:column>
+            </p:dataTable>
+          </h:form>
+        </p:tab>
+        <p:tab id="agentView" title="Political Agents">
+          <h:form>
+            <p:dataTable id="politicalAgentView" value="#{politicalAgentController.politicalAgents}" var="a"
+                         lazy="true"
+                         emptyMessage="No Agent added. Click above to add an agent" paginator="true" rows="10"
+                         paginatorPosition="top" sortBy="#{a.agentId}">
+              <p:column headerText="Agent Photo: " style="width: 80px; padding: 10px">
+                <p:graphicImage value="#{politicalAgentController.getPoliticalAgentImageResourceContextUrl(a)}"
+                                width="70" height="70" style="border-radius: 15px" rendered="#{not empty a.agentPhoto}"/>
+              </p:column>
+              <p:column headerText="Name: ">
+                <h:outputText value="#{a.agentName}"/>
+              </p:column>
+              <p:column headerText="Phonenumber: ">
+                <h:outputText value="#{a.agentPhoneNumber}"/>
+              </p:column>
+              <p:column headerText="Elective Region: ">
+                <h:outputText value="#{a.electiveRegion}"/>
+              </p:column>
+              <p:column>
+                <p:commandButton value="Edit" icon="ui-icon-pencil"
+                                 actionListener="#{politicalAgentController.prepareEditPoliticalAgent(a)}" update=":newElectiveRegionForm"/>
+              </p:column>
+              <p:summaryRow >
+                <p:column colspan="4" rendered="#{a.agents.size() > 0}">
+                  <p:dataTable value="#{a.agents}" var="ma" style="width: 100%" >
+                    <f:facet name="header">
+                      <h:outputText value="More Polling Stations Agents"/>
+                    </f:facet>
+                    <p:column headerText="Agent Name">
+                      <h:outputText value="#{ma.agentName}" style="width: 100%"/>
+                    </p:column>
+                    <p:column headerText="Phone Number">
+                      <h:outputText value="#{ma.phoneNumber}" style="width: 100%"/>
+                    </p:column>
+                    <p:column headerText="Agent type">
+                      <h:outputText value="#{ma.agentType.toString()}" style="width: 100%"/>
+                    </p:column>
+                  </p:dataTable>
+                </p:column>
+              </p:summaryRow>
+            </p:dataTable>
+          </h:form>
+        </p:tab>
+      </p:tabView>
+    </ui:define>
+  </ui:composition>
+</html>

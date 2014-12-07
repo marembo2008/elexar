@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <style type="text/css">
+        .ui-accordion .ui-accordion-header {
+          height: 30px;
+          font-size: 14px;
+        }
+      </style>
+      <h:form>
+        <p:remoteCommand name="updateElectionTurnout"  update=":electionTurnoutController">
+          <f:param name="update_request" value="true"/>
+        </p:remoteCommand>
+      </h:form>
+      <h:form>
+        <p:poll interval="60" listener="#{electionTurnoutController.updateTurnoutModel()}" oncomplete="refresh();"/>
+      </h:form>
+      <p:panelGrid id="electionTurnoutController" columns="3" style="width: 100%"
+                   styleClass="td_borderless">
+        <h:form id="electiveRegionSelectForm">
+          <p:panel header="Color Scheme:">
+            <div align="left" style="width: 100%">
+              <p:panelGrid columns="2" style="width: 100%; text-align: left">
+                <p:separator style="height: 2px; width: 100px; float: left"/>
+                <p:separator style="height: 2px; width: 100px; float: left"/>
+                <p:separator style="height: 10px; width: 100%; background: #FF11EE; float: left"/>
+                <h:outputText value="Turnout 0-30%"/>
+                <p:separator style="height: 10px; width: 100%; background: #0066FF; float: left"/>
+                <h:outputText value="Turnout 30-60%"/>
+                <p:separator style="height: 10px; width: 100%; background: #33CC33; float: left"/>
+                <h:outputText value="Turnout > 60%"/>
+                <p:separator style="height: 2px; width: 100px; float: left"/>
+                <p:separator style="height: 2px; width: 100px; float: left"/>
+                <p:separator style="height: 10px; width: 100%; background: #FF5050; float: left"/>
+                <h:outputText value="Over Voter Turnout"/>
+              </p:panelGrid>
+            </div>
+            <p:accordionPanel activeIndex="-1">
+              <p:tab title="Turnout Graph Controlls">
+                <h:form>
+                  <p:panelGrid columns="2" style="font-size: 12px; width: 100%">
+                    <p:outputLabel value="Polling Station Opening time: " for="startTime"/>
+                    <p:calendar id="startTime" converter="calendarConverter" pattern="yyyy-mm-dd HH:mm:ss"
+                                value="#{electionTurnoutController.start}" widgetVar="calendar" style="width: 192px"/>
+                    <p:outputLabel value="Turnout Interval in Minutes:" for="seriesInterval"/>
+                    <p:inputText id="seriesInterval" value="#{electionTurnoutController.SERIES_INTERVAL_MINUTES}"
+                                 style="width: 192px"/>
+                  </p:panelGrid>
+                  <p:commandButton value="Update" actionListener="#{electionTurnoutController.prepareTurnoutModel()}"
+                                   oncomplete="refresh();"/>
+                </h:form>
+              </p:tab>
+            </p:accordionPanel>
+          </p:panel>
+          <p:commandButton value="Reset to Entire Country Turnout" actionListener="#{electionTurnoutController.countryElectiveRegionSelected()}"
+                           oncomplete="updateElectionTurnout()" partialSubmit="true" process="@this" style="font-size: 13px; "/>
+          <p:panelGrid columns="2" style="font-size: 12px">
+            <p:outputLabel value="Country: " for="countryElectiveRegion"
+                           rendered="#{not empty electionTurnoutController.allCountryElectiveRegions}"/>
+            <p:selectOneMenu id="countryElectiveRegion" value="#{electionTurnoutController.countryElectiveRegion}"
+                             converter="electiverRegionConverter"
+                             rendered="#{not empty electionTurnoutController.allCountryElectiveRegions}"
+                             style="width: 200px">
+              <f:selectItems value="#{electionTurnoutController.allCountryElectiveRegions}"/>
+              <p:ajax event="change" listener="#{electionTurnoutController.countryElectiveRegionSelected()}"
+                      oncomplete="updateElectionTurnout()" partialSubmit="true" process="@this"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="County: " for="countyElectiveRegion"
+                           rendered="#{not empty electionTurnoutController.allCountyElectiveRegions}"/>
+            <p:selectOneMenu id="countyElectiveRegion" value="#{electionTurnoutController.countyElectiveRegion}"
+                             converter="electiverRegionConverter"
+                             rendered="#{not empty electionTurnoutController.allCountyElectiveRegions}"
+                             style="width: 200px;">
+              <f:selectItems value="#{electionTurnoutController.allCountyElectiveRegions}"/>
+              <p:ajax event="change" listener="#{electionTurnoutController.countyElectiveRegionSelected()}"
+                      oncomplete="updateElectionTurnout()"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="Constituency: " for="constituencyElectiveRegion"
+                           rendered="#{not empty electionTurnoutController.allConstituencyElectiveRegions}"/>
+            <p:selectOneMenu id="constituencyElectiveRegion" value="#{electionTurnoutController.constituencyRegion}"
+                             converter="electiverRegionConverter"
+                             style="width: 200px"
+                             rendered="#{not empty electionTurnoutController.allConstituencyElectiveRegions}">
+              <f:selectItems value="#{electionTurnoutController.allConstituencyElectiveRegions}"/>
+              <p:ajax event="change" listener="#{electionTurnoutController.constituencyElectiveRegionSelected()}"
+                      oncomplete="updateElectionTurnout()"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="Ward: " for="wardElectiveRegion"
+                           rendered="#{not empty electionTurnoutController.allWardElectiveRegions}"/>
+            <p:selectOneMenu id="wardElectiveRegion" value="#{electionTurnoutController.wardElectiveRegion}"
+                             style="width: 200px"
+                             rendered="#{not empty electionTurnoutController.allWardElectiveRegions}"
+                             converter="electiverRegionConverter">
+              <f:selectItems value="#{electionTurnoutController.allWardElectiveRegions}"/>
+              <p:ajax event="change" listener="#{electionTurnoutController.wardElectiveRegionSelected()}"
+                      oncomplete="updateElectionTurnout()"/>
+            </p:selectOneMenu>
+            <p:outputLabel value="Polling Station: " for="pollingStationElectiveRegion"
+                           rendered="#{not empty electionTurnoutController.allPollingStationElectiveRegions}"/>
+            <p:selectOneMenu id="pollingStationElectiveRegion" value="#{electionTurnoutController.pollingStationElectiveRegion}"
+                             style="width: 200px"
+                             rendered="#{not empty electionTurnoutController.allPollingStationElectiveRegions}"
+                             converter="electiverRegionConverter">
+              <f:selectItems value="#{electionTurnoutController.allPollingStationElectiveRegions}"/>
+              <p:ajax event="change" listener="#{electionTurnoutController.pollingStationElectiveRegionSelected()}"
+                      oncomplete="updateElectionTurnout()"/>
+            </p:selectOneMenu>
+          </p:panelGrid>
+          <p:panel id="pollingStationPoliticalAgent"
+                   header="Political Agent for #{electionTurnoutController.pollingStationElectiveRegion}"
+                   rendered="#{not empty electionTurnoutController.pollingStationElectiveRegion}">
+            <p:panelGrid columns="2" style="width: 100%; font-size: 16px; color: #0033CC">
+              <h:outputText value="Agent Name: "/>
+              <h:outputText value="#{electionTurnoutController.pollingStationPoliticalAgent.agentName}"/>
+              <h:outputText value="Agent Phonenumner: "/>
+              <h:outputText value="#{electionTurnoutController.pollingStationPoliticalAgent.agentPhoneNumber}"/>
+            </p:panelGrid>
+            <p:dataTable value="#{electionTurnoutController.pollingStationPoliticalAgent.agents}" var="a"
+                         style="font-size: 12px"
+                         rendered="#{electionTurnoutController.pollingStationPoliticalAgent.agents.size() > 0}">
+              <f:facet name="header">
+                <h:outputText value="More Agents within this polling station"/>
+              </f:facet>
+              <p:column headerText="Agent Name:">
+                <h:outputText value="#{a.agentName}"/>
+              </p:column>
+              <p:column headerText="Agent Phonenumber:">
+                <h:outputText value="#{a.phoneNumber}"/>
+              </p:column>
+              <p:column headerText="Agent Type:">
+                <h:outputText value="#{a.agentType.toString()}"/>
+              </p:column>
+            </p:dataTable>
+          </p:panel>
+        </h:form>
+        <p:panel id="turnoutChart" header="#{electionTurnoutController.electiverRegionTitle}"
+                 rendered="#{not empty electionTurnoutController.turnoutModel}">
+          <p:lineChart id="lineChat" value="#{electionTurnoutController.turnoutModel}"
+                       style="height: 450px; width: 450px; font-size: 15px" shadow="true"
+                       xaxisLabel="Voting Time" yaxisLabel="Cast Votes"
+                       xaxisAngle="-90"
+                       legendPosition="ne" title="#{electionTurnoutController.electiverRegionTitle} Turnout"
+                       minY="0" maxY="#{electionTurnoutController.maximumVotesCast}"/>
+        </p:panel>
+        <p:gmap id="electionTurnoutMapPanel" center="0.560294, 37.912170"
+                type="hybrid" zoom="#{electiveRegionController.mapZoomLevel}"
+                style="width: 500px; height: 500px" widgetVar="electionTurnoutMap" />
+      </p:panelGrid>
+      <h:form id="javascriptBounds">
+        <script type="text/javascript">
+          executeAsync(function(){
+          #{electiveRegionController.javascriptRegionBoundsForElectionTurnout};
+            }, 100);
+        </script>
+      </h:form>
+    </ui:define>
+  </ui:composition>
+</html>

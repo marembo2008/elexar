@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <h:form>
+        <p:poll interval="60" listener="#{electionResultController.updateElectionResult()}"
+                onstart="startLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                oncomplete="hideLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                update=":electionResultMainPanel" />
+      </h:form>
+      <h:panelGroup id="electionResultMainPanel" layout="block" style="width: 100%">
+        <p:panelGrid id="electionResultPanel" columns="3" style="width: 100%" styleClass="td_borderless">
+          <p:panelGrid id="electionResultChartView" columns="1" style="font-size: 12px" >
+            <h:form id="presidentialElectionResultFrom">
+              <p:accordionPanel id="presidentialElectionResultPanel" activeIndex="0" >
+                <p:tab title="Click to select location">
+                  <p:commandButton value="Reset to Entire Country Result"
+                                   actionListener="#{electiveRegionController.resetToCountry()}"
+                                   onstart="startLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                                   oncomplete="hideLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                                   update=":electionResultMainPanel"/>
+                  <br/>
+                  <p:graphicImage id="busy_image" value="/resources/image/busy_clock.gif" width="60" height="60" style="display: none"/>
+                  <p:panelGrid columns="2" style="font-size: 12px">
+                    <p:outputLabel value="Country: " for="countryElectiveRegion"
+                                   rendered="#{not empty electionResultController.allCountryElectiveRegions}"/>
+                    <p:selectOneMenu id="countryElectiveRegion" value="#{electionResultController.countryElectiveRegion}"
+                                     converter="electiverRegionConverter"
+                                     rendered="#{not empty electionResultController.allCountryElectiveRegions}"
+                                     style="width: 200px">
+                      <f:selectItems value="#{electionResultController.allCountryElectiveRegions}"/>
+                      <p:ajax event="change" partialSubmit="true" process="@this" listener="#{electionResultController.countryElectiveRegionSelected()}"
+                              oncomplete="updatePresidentialTally()"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="County: " for="countyElectiveRegion"
+                                   rendered="#{not empty electionResultController.allCountyElectiveRegions}"/>
+                    <p:selectOneMenu id="countyElectiveRegion" value="#{electionResultController.countyElectiveRegion}"
+                                     converter="electiverRegionConverter"
+                                     rendered="#{not empty electionResultController.allCountyElectiveRegions}"
+                                     style="width: 200px">
+                      <f:selectItems value="#{electionResultController.allCountyElectiveRegions}"/>
+                      <p:ajax event="change" partialSubmit="true" process="@this"  listener="#{electionResultController.countyElectiveRegionSelected()}"
+                              oncomplete="updatePresidentialTally()"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Constituency: " for="constituencyElectiveRegion"
+                                   rendered="#{not empty electionResultController.allConstituencyElectiveRegions}"/>
+                    <p:selectOneMenu id="constituencyElectiveRegion" value="#{electionResultController.constituencyElectiveRegion}"
+                                     converter="electiverRegionConverter"
+                                     style="width: 200px"
+                                     rendered="#{not empty electionResultController.allConstituencyElectiveRegions}">
+                      <f:selectItems value="#{electionResultController.allConstituencyElectiveRegions}"/>
+                      <p:ajax event="change" partialSubmit="true" process="@this"  listener="#{electionResultController.constituencyElectiveRegionSelected()}"
+                              oncomplete="updatePresidentialTally()"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Ward: " for="wardElectiveRegion"
+                                   rendered="#{not empty electionResultController.allWardElectiveRegions}"/>
+                    <p:selectOneMenu id="wardElectiveRegion" value="#{electionResultController.wardElectiveRegion}"
+                                     style="width: 200px"
+                                     rendered="#{not empty electionResultController.allWardElectiveRegions}"
+                                     converter="electiverRegionConverter">
+                      <f:selectItems value="#{electionResultController.allWardElectiveRegions}"/>
+                      <p:ajax event="change" partialSubmit="true" process="@this"  listener="#{electionResultController.wardElectiveRegionSelected()}"
+                              oncomplete="updatePresidentialTally()"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Polling Station: " for="pollingStationElectiveRegion"
+                                   rendered="#{not empty electionResultController.allPollingStationElectiveRegions}"/>
+                    <p:selectOneMenu id="pollingStationElectiveRegion" value="#{electionResultController.pollingStationElectiveRegion}"
+                                     style="width: 200px"
+                                     rendered="#{not empty electionResultController.allPollingStationElectiveRegions}"
+                                     converter="electiverRegionConverter">
+                      <f:selectItems value="#{electionResultController.allPollingStationElectiveRegions}"/>
+                      <p:ajax event="change" partialSubmit="true" process="@this" listener="#{electionResultController.pollingStationElectiveRegionSelected()}"
+                              oncomplete="updatePresidentialTally()"/>
+                    </p:selectOneMenu>
+                  </p:panelGrid>
+                </p:tab>
+              </p:accordionPanel>
+              <br/>
+              <p:panel id="turnoutChart"  style="width: 100%">
+                <f:facet name="header">
+                  <p:panelGrid columns="2" style="font-weight: bold; font-size: 12px; color: #aaaaaa; width: 100%; ">
+                    <h:outputText value="Results for:" style="font-size: 17px"/>
+                    <h:outputText value="#{electionResultController.electiveRegion}(#{electionResultController.electiveRegion.electiveRegionType})"
+                                  style="float: right;font-size: 17px; text-decoration: underline; color: aqua"/>
+                    <h:outputText value="Registered Voters:"/>
+                    <h:outputText value=" #{electionResultController.electiveRegion.registeredVoters}"
+                                  converter="numberConverter" style="float: right"/>
+                    <h:outputText value="Votes Cast:"/>
+                    <h:outputText value="#{electionResultController.totalVotesCast}"
+                                  converter="numberConverter" style="float: right"/>
+                    <h:outputText value="Votes Disputed:"/>
+                    <h:outputText value="#{electionResultController.totalVotesDisputed}"
+                                  converter="numberConverter" style="float: right"/>
+                    <h:outputText value="Votes Rejected:"/>
+                    <h:outputText value="#{electionResultController.totalVotesRejected}"
+                                  converter="numberConverter" style="float: right"/>
+                    <h:outputText value="Voter Turnout:" />
+                    <h:outputText value="#{electionResultController.voterTurnout}%" style="color: #ff6767; float: right" />
+                  </p:panelGrid>
+                </f:facet>
+                <p:dataTable value="#{electionResultController.presidentialElectionResult.candidateElectionResults}" var="r"
+                             style="text-align: left" styleClass="hide-column-names"
+                             rendered="#{not empty electionResultController.presidentialElectionResult}">
+                  <p:column>
+                    <p:graphicImage value="#{candidateController.getCandidatePhoto(r.candidate)}"
+                                    height="40" width="40" style="border-radius: 15px"/>
+                  </p:column>
+                  <p:column>
+                    <p:graphicImage value="#{candidateController.getPartLogo(r.candidate)}"
+                                    height="30" width="30" style="border-radius: 15px"/>
+                  </p:column>
+                  <p:column>
+                    <h:outputText value="#{r.candidate}" style="font-weight: bold; font-size: 16px"/>
+                    <br/>
+                    <h:outputText value="#{r.votesGained}" converter="numberConverter" style="font-weight: bold"/>
+                    <br/>
+                    <h:panelGroup layout="block" style="width: 100%">
+                      <p:separator style="height: 15px; width: #{electionResultController.getPercentageOfVotesGainedStr(r)};
+                                   background: #{electionResultController.getBackgroundColor(r)}; float: left"/>
+                      <h:outputText value="#{electionResultController.getPercentageOfVotesGainedStr(r)}" style="width: 30px; float: left"/>
+                    </h:panelGroup>
+                  </p:column>
+                </p:dataTable>
+              </p:panel>
+            </h:form>
+          </p:panelGrid>
+          <p:barChart id="barChat" value="#{electionResultController.resultModel}"
+                      rendered="#{not empty electionResultController.resultModel}"
+                      style="height: 400px; width: 350px"
+                      barMargin="10" barPadding="5" legendPosition="ne"
+                      seriesColors="#{electionResultController.seriesColors}"
+                      xaxisLabel="Elective Regions" yaxisLabel="Cast Votes"
+                      min="0" max="#{electionResultController.totalVotesCast}"/>
+          <p:gmap id="gmapPanel" center="0.560294, 37.912170"
+                  type="hybrid" zoom="#{electiveRegionController.mapZoomLevel}"
+                  style="width: 500px; height: 550px" widgetVar="electionResultMap" />
+        </p:panelGrid>
+        <h:form id="javascriptRegionBoundsForm">
+          <script type="text/javascript">
+            executeAsync(function(){
+            #{electiveRegionController.javascriptRegionBounds};
+              }, 0);
+          </script>
+        </h:form>
+        <h:form >
+          <p:remoteCommand name="updatePresidentialTally"
+                           actionListener="#{electiveRegionController.prepareJavascriptRegionBounds()}"
+                           onstart="startLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                           oncomplete="hideLoading('presidentialElectionResultFrom:presidentialElectionResultPanel:busy_image')"
+                           update=":electionResultMainPanel">
+            <f:param name="update_request" value="true"/>
+          </p:remoteCommand>
+        </h:form>
+      </h:panelGroup>
+    </ui:define>
+  </ui:composition>
+</html>

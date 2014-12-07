@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+  <ui:composition template="/elexar-template.xhtml">
+    <ui:define name="body">
+      <h:form id="electionResultForm" style="font-size: 13px">
+        <p:panelGrid columns="1" style="width: 100%" styleClass="td_borderless">
+          <p:outputLabel value="Polling Station: " for="pollingStation"/>
+          <p:panelGrid id="electiveRegionSearchPanel" columns="1" style="width: 100%; padding: 0px">
+            <p:inputText value="#{electionResultController.electiveRegionName}" style="width: 100%">
+              <p:ajax event="change" partialSubmit="true" process="@this" update="electiveRegionSearchPanel"/>
+            </p:inputText>
+            <p:selectOneMenu id="pollingStation" value="#{electionResultController.electionResult.electiveRegion}"
+                             style="width: 100%" converter="specialElectiveRegionConverter">
+              <f:selectItems value="#{electionResultController.findElectiveRegions()}"/>
+            </p:selectOneMenu>
+          </p:panelGrid>
+          <p:separator style="height: 2px; width: 100%"/>
+          <p:dataTable value="#{electionResultController.electionResult.candidateElectionResults}" var="r" style="width: 100%">
+            <p:column headerText="Presidential Candidate">
+              <p:panelGrid columns="3" style="text-align: left">
+                <p:graphicImage value="#{candidateController.getCandidatePhoto(r.candidate)}" width="30" height="30"/>
+                <p:graphicImage value="#{candidateController.getPartLogo(r.candidate)}" width="30" height="30"/>
+                <h:outputText value="#{r.candidate}"/>
+              </p:panelGrid>
+            </p:column>
+            <p:column headerText="Votes Gained">
+              <p:inputText id="votesGained" value="#{r.votesGained}" style="width: 100%"/>
+            </p:column>
+          </p:dataTable>
+          <p:separator style="height: 2px; width: 100%"/>
+          <p:outputLabel value="Votes Disputed: " for="votesDisputed"/>
+          <p:inputText id="votesDisputed" value="#{electionResultController.electionResult.votesDisputed}" style="width: 100%"/>
+          <p:outputLabel value="Votes Rejected: " for="votesRejected"/>
+          <p:inputText id="votesRejected" value="#{electionResultController.electionResult.votesRejected}" style="width: 100%"/>
+          <p:separator style="height: 2px; width: 100%"/>
+          <p:outputLabel value="Please give description for this manual enty: " for="description"/>
+          <p:inputTextarea id="description" value="#{electionResultController.electionResult.description}"
+                           style="width: 100%; overflow: auto; max-height: 100px" />
+        </p:panelGrid>
+        <br/>
+        <h:outputText value="Please confirm the values are correct before saving!"
+                      style="color: red; font-weight: bold; font-size: 20px"/>
+      </h:form>
+      <h:form>
+        <p:commandButton value="Add Result" partialSubmit="true" process=":electionResultForm"
+                         actionListener="#{electionResultController.addElectionResult()}" update=":electionResultForm"/>
+      </h:form>
+    </ui:define>
+  </ui:composition>
+</html>
