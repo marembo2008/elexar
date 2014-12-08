@@ -161,9 +161,8 @@ public class ElexarManager {
     @Schedule(hour = "*", minute = "*/1")
     public void addTestTurnoutData() {
         try {
-            int count = pollingStationFacade.count();
-            for (Iterator<PollingStation> it = pollingStationFacade.findRange(turnoutRange).iterator(); it.hasNext();) {
-                ElectiveRegion e = it.next();
+            int count = Math.max(1, pollingStationFacade.count());
+            for (final ElectiveRegion e : pollingStationFacade.findRange(turnoutRange)) {
                 electionTurnoutFacade.doAddTestTurnoutData(e);
             }
             System.err.println("addTestTurnoutData-count: " + count);
