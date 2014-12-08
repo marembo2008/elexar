@@ -1,0 +1,8 @@
+<Resource id="jdbc/elexar" type="DataSource">
+    JdbcDriver          com.mysql.jdbc.Driver
+    JdbcUrl             jdbc:mysql://127.0.0.1:3306/elexar
+    UserName            fellow
+    Password            P0!nt3d
+    JtaManaged          true
+    DefaultAutoCommit   false
+</Resource>
