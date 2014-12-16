@@ -4,11 +4,9 @@
         <jta-data-source>java:/jboss/datasources/elexar</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
-            <properties>
-                <!--Awaiting fix for release hibernate-entity-manager-4.3.6.Final-->
-                <property name="hibernate.batch_fetch_style" value="PADDED"/>
-                <property name="hibernate.hbm2ddl.auto" value="update"/>
-            </properties>
+            <!--Awaiting fix for release hibernate-entity-manager-4.3.6.Final-->
+            <property name="hibernate.batch_fetch_style" value="PADDED"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
         </properties>
     </persistence-unit>
 </persistence>
