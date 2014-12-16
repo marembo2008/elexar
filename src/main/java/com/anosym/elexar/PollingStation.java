@@ -10,7 +10,6 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.Table;
 
 /**
  *
@@ -25,7 +24,6 @@ import javax.persistence.Table;
     @NamedQuery(name = "POLLINGSTATION.FIND_POLLING_STATION_WITHOUT_ELECTION_RESULTS",
                 query = "SELECT e FROM ElectionResult r JOIN r.electiveRegion e WHERE e.regionId != r.electiveRegion.regionId ")
 })
-@Table(name = "polling")
 public class PollingStation extends ElectiveRegion implements Serializable {
 
     private static final long serialVersionUID = IdGenerator.serialVersionUID(PollingStation.class);
