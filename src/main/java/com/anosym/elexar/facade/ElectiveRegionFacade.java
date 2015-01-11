@@ -132,7 +132,7 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
             return electiveRegions;
         } catch (Exception e) {
             ElexarController.logError(e);
-            return new ArrayList<ElectiveRegion>();
+            return Collections.EMPTY_LIST;
         }
     }
 
