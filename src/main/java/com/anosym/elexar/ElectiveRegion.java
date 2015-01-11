@@ -7,6 +7,7 @@ package com.anosym.elexar;
 import com.anosym.elexar.util.ElectiveRegionType;
 import com.anosym.utilities.IdGenerator;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -149,41 +150,20 @@ public class ElectiveRegion implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 23 * hash + (this.regionId != null ? this.regionId.hashCode() : 0);
-        hash = 23 * hash + (this.regionName != null ? this.regionName.hashCode() : 0);
-        hash = 23 * hash + (int) (this.registeredVoters ^ (this.registeredVoters >>> 32));
-        hash = 23 * hash + (this.parentElectiveRegion != null ? this.parentElectiveRegion.hashCode() : 0);
-        hash = 23 * hash + (this.electiveRegionType != null ? this.electiveRegionType.hashCode() : 0);
-        return hash;
+        return Objects.hash(regionId, regionCode, regionName, electiveRegionType);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null || !(obj instanceof ElectiveRegion)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ElectiveRegion other = (ElectiveRegion) obj;
-        if (this.regionId != other.regionId && (this.regionId == null || !this.regionId.equals(other.regionId))) {
-            return false;
-        }
-        if ((this.regionName == null) ? (other.regionName != null) : !this.regionName.equals(other.regionName)) {
-            return false;
-        }
-        if (this.registeredVoters != other.registeredVoters) {
-            return false;
-        }
-        if (this.parentElectiveRegion != other.parentElectiveRegion && (this.parentElectiveRegion == null || !this.parentElectiveRegion.equals(
-                other.parentElectiveRegion))) {
-            return false;
-        }
-        if (this.electiveRegionType != other.electiveRegionType) {
-            return false;
-        }
-        return true;
+
+        final ElectiveRegion er = (ElectiveRegion) obj;
+        return Objects.equals(regionId, er.regionId)
+                && Objects.equals(regionCode, er.regionCode)
+                && Objects.equals(regionName, er.regionName)
+                && Objects.equals(electiveRegionType, er.electiveRegionType);
     }
 
     @Override
