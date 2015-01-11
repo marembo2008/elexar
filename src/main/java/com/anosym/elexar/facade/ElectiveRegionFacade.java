@@ -18,8 +18,11 @@ import java.util.List;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
 
 /**
  *
@@ -40,6 +43,8 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
     private ConstituencyFacade constituencyFacade;
     @EJB
     private CountryFacade countryFacade;
+    @EJB
+    private CountyFacade countyFacade;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -52,9 +57,28 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
 
     @Asynchronous
     public void normalizeRegisteredVoters() {
-        ElectiveRegion countryElectiveRegion = findCountryElectiveRegion();
+        final ElectiveRegion countryElectiveRegion = findCountryElectiveRegion();
         normalizeRegisteredVoters(countryElectiveRegion);
 
+    }
+
+    @TransactionAttribute(REQUIRES_NEW)
+    public void normalizeElectiveRegions(final List<ElectiveRegion> electiveRegions) {
+        for (final ElectiveRegion electiveRegion : electiveRegions) {
+            final BigDecimal totalPopulation = getEntityManager()
+                    .createNamedQuery("ElectiveRegion.findTotalPopulationFromChildElectiveRegion", BigDecimal.class)
+                    .setParameter("regionId", electiveRegion.getRegionId())
+                    .getSingleResult();
+            electiveRegion.setPopulation(totalPopulation.longValue());
+            final BigDecimal totalRegisteredVoters = getEntityManager()
+                    .createNamedQuery("ElectiveRegion.findTotalRegisteredVotersFromChildElectiveRegion", BigDecimal.class)
+                    .setParameter("regionId", electiveRegion.getRegionId())
+                    .getSingleResult();
+            electiveRegion.setPopulation(totalPopulation.longValue());
+            electiveRegion.setRegisteredVoters(totalRegisteredVoters.longValue());
+            edit(electiveRegion);
+
+        }
     }
 
     private long normalizeRegisteredVoters(ElectiveRegion electiveRegion) {
@@ -253,6 +277,14 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
 
     public List<ElectiveRegion> findCountyWardElectiveRegions() {
         return new ArrayList<ElectiveRegion>(countyWardFacade.findAll());
+    }
+
+    public List<ElectiveRegion> findCountryElectiveRegions() {
+        return new ArrayList<ElectiveRegion>(countryFacade.findAll());
+    }
+
+    public List<ElectiveRegion> findCountyElectiveRegions() {
+        return new ArrayList<ElectiveRegion>(countyFacade.findAll());
     }
 
     public List<ElectiveRegion> findConstituencyElectiveRegions() {

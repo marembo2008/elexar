@@ -39,7 +39,11 @@ import javax.persistence.OneToOne;
     @NamedQuery(name = "ELECTIVEREGION.GET_ELECTIVE_REGIONS_NOT_ASSIGNED_TO_AGENT",
                 query = "SELECT e FROM ElectiveRegion e WHERE NOT EXISTS (SELECT r FROM PoliticalAgent r WHERE r.electiveRegion.regionId = e.regionId)  ORDER BY e.regionName"),
     @NamedQuery(name = "ELECTIVEREGION.COUNT_ELECTIVE_REGIONS_NOT_ASSIGNED_TO_AGENT",
-                query = "SELECT COUNT(e) FROM ElectiveRegion e WHERE NOT EXISTS (SELECT a FROM PoliticalAgent a WHERE a.electiveRegion.regionId = e.regionId)  ORDER BY e.regionName")
+                query = "SELECT COUNT(e) FROM ElectiveRegion e WHERE NOT EXISTS (SELECT a FROM PoliticalAgent a WHERE a.electiveRegion.regionId = e.regionId)  ORDER BY e.regionName"),
+    @NamedQuery(name = "ElectiveRegion.findTotalPopulationFromChildElectiveRegion",
+                query = "SELECT SUM(e.population) FROM ElectiveRegion e WHERE e.parentElectiveRegion.regionId = :regionId"),
+    @NamedQuery(name = "ElectiveRegion.findTotalRegisteredVotersFromChildElectiveRegion",
+                query = "SELECT SUM(e.registeredVoters) FROM ElectiveRegion e WHERE e.parentElectiveRegion.regionId = :regionId")
 })
 public class ElectiveRegion implements Serializable {
 

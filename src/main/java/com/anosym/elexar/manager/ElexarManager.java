@@ -19,7 +19,6 @@ import com.anosym.jflemax.validation.PageInformation;
 import com.anosym.utilities.FormattedCalendar;
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -88,6 +87,18 @@ public class ElexarManager {
   @PostConstruct
     public void onStart() {
         PageInformation.onApplicationStart();
+        normalizeElectiveRegions();
+    }
+
+    private void normalizeElectiveRegions() {
+        //countywards
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyWardElectiveRegions());
+        //constituency
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findConstituencyElectiveRegions());
+        //county
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyElectiveRegions());
+        //country
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountryElectiveRegions());
     }
 
     public void normalizeElectiveRegionRegisteredVoters() {
