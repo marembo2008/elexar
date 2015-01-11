@@ -14,7 +14,6 @@ import com.anosym.elexar.util.ElectiveRegionType;
 import com.anosym.elexar.util.ElectiveSeat;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +297,7 @@ public abstract class GeneralElectionResultFacade<T extends ElectionResult> {
             Object count = getEntityManager()
                     .createNativeQuery(sql)
                     .getSingleResult();
-            return count != null ? ((Long) count).intValue() : 0;
+            return count != null ? ((Number) count).intValue() : 0;
         } catch (Exception e) {
             ElexarController.logError(e);
             return 0;
