@@ -65,17 +65,16 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
     @TransactionAttribute(REQUIRES_NEW)
     public void normalizeElectiveRegions(final List<ElectiveRegion> electiveRegions) {
         for (final ElectiveRegion electiveRegion : electiveRegions) {
-            final BigDecimal totalPopulation = getEntityManager()
-                    .createNamedQuery("ElectiveRegion.findTotalPopulationFromChildElectiveRegion", BigDecimal.class)
+            final Long totalPopulation = getEntityManager()
+                    .createNamedQuery("ElectiveRegion.findTotalPopulationFromChildElectiveRegion", Long.class)
                     .setParameter("regionId", electiveRegion.getRegionId())
                     .getSingleResult();
-            electiveRegion.setPopulation(totalPopulation.longValue());
-            final BigDecimal totalRegisteredVoters = getEntityManager()
-                    .createNamedQuery("ElectiveRegion.findTotalRegisteredVotersFromChildElectiveRegion", BigDecimal.class)
+            final Long totalRegisteredVoters = getEntityManager()
+                    .createNamedQuery("ElectiveRegion.findTotalRegisteredVotersFromChildElectiveRegion", Long.class)
                     .setParameter("regionId", electiveRegion.getRegionId())
                     .getSingleResult();
-            electiveRegion.setPopulation(totalPopulation.longValue());
-            electiveRegion.setRegisteredVoters(totalRegisteredVoters.longValue());
+            electiveRegion.setPopulation(totalPopulation);
+            electiveRegion.setRegisteredVoters(totalRegisteredVoters);
             edit(electiveRegion);
 
         }
