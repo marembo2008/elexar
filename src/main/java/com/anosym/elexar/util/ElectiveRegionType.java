@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.anosym.elexar.util;
 
 /**
@@ -10,40 +6,43 @@ package com.anosym.elexar.util;
  */
 public enum ElectiveRegionType {
 
-  COUNTRY("Country"),
-  COUNTY("County"),
-  CONSTITUENCY("Constituency"),
-  COUNTY_WARD("County Ward"),
-  POLLING_STATION("Polling Station");
-  private String desc;
+    COUNTRY("Country", "Country"),
+    COUNTY("County", "County"),
+    CONSTITUENCY("Constituency", "Constituency"),
+    COUNTY_WARD("County Ward", "CountyWard"),
+    POLLING_STATION("Polling Station", "PollingStation");
 
-  private ElectiveRegionType(String desc) {
-    this.desc = desc;
-  }
+    private final String desc;
+    private final String entityName;
 
-  public static ElectiveRegionType valueOf(int ordinal) {
-    for (ElectiveRegionType ert : values()) {
-      if (ert.ordinal() == ordinal) {
-        return ert;
-      }
+    private ElectiveRegionType(String desc, String entityName) {
+        this.desc = desc;
+        this.entityName = entityName;
     }
-    return null;
-  }
 
-  public String getPersistentTableName() {
-    return toString().trim().replaceAll(" ", "").toUpperCase();
-  }
+    public static ElectiveRegionType valueOf(final int ordinal) {
+        for (ElectiveRegionType ert : values()) {
+            if (ert.ordinal() == ordinal) {
+                return ert;
+            }
+        }
+        return null;
+    }
 
-  public ElectiveRegionType getChildElectiveRegionType() {
-    return valueOf(ordinal() + 1);
-  }
+    public String getEntityName() {
+        return entityName;
+    }
 
-  public String getChildPersistentTableName() {
-    return getChildElectiveRegionType().getPersistentTableName();
-  }
+    public ElectiveRegionType getChildElectiveRegionType() {
+        return valueOf(ordinal() + 1);
+    }
 
-  @Override
-  public String toString() {
-    return desc;
-  }
+    public String getChildPersistentEntityName() {
+        return getChildElectiveRegionType().getEntityName();
+    }
+
+    @Override
+    public String toString() {
+        return desc;
+    }
 }

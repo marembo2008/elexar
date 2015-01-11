@@ -58,7 +58,7 @@ public class ElectiveRegionBoundaryFacade extends AbstractFacade<ElectiveRegionB
 
     public List<ElectiveRegionBoundary> getElectiveRegionBoundaries(ElectiveRegion electiveRegion) {
         try {
-            String tableName = electiveRegion.getElectiveRegionType().getChildPersistentTableName();
+            String tableName = electiveRegion.getElectiveRegionType().getChildPersistentEntityName();
             String sql = "SELECT "
                     + "BOUNDARYID, AsText(CENTRECOORDINATE),AsText(REGIONBOUNDARIES), ELECTIVEREGION_REGIONID "
                     + "FROM ELECTIVEREGIONBOUNDARY AS B JOIN " + tableName + " AS E ON B.ELECTIVEREGION_REGIONID = E.REGIONID WHERE E.PARENTELECTIVEREGION_REGIONID = " + electiveRegion

@@ -273,7 +273,7 @@ public class ElectiveRegionController implements Serializable {
             if (electiveRegionBoundary != null && electiveRegionBoundary.getCentreCoordinate() != null) {
                 System.out.println("current electiveRegionBoundary: " + electiveRegionBoundary);
                 System.out.println("current electiveRegionBoundary centre: " + electiveRegionBoundary.getCentreCoordinate());
-                List<ElectiveRegionBoundary> electiveRegionBoundaries = new ArrayList<ElectiveRegionBoundary>();
+                List<ElectiveRegionBoundary> electiveRegionBoundaries = new ArrayList<>();
                 if (electiveRegion.getElectiveRegionType() == ElectiveRegionType.CONSTITUENCY) {
                     electiveRegionBoundaries.add(electiveRegionBoundary);
                 } else {
