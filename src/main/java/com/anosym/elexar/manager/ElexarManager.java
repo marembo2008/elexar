@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.DependsOn;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
@@ -36,6 +37,7 @@ import javax.enterprise.context.ApplicationScoped;
 @Singleton
 @ApplicationScoped
 @Startup
+@DependsOn("MappedDomainManager")
 public class ElexarManager {
 
     private static final BigDecimal MIDDAY_EXPECTED_TURNOUT = BigDecimal.valueOf(50.00);
