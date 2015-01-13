@@ -6,24 +6,16 @@ import com.anosym.elexar.County;
 import com.anosym.elexar.CountyWard;
 import com.anosym.elexar.ElectiveRegionBoundary;
 import com.anosym.elexar.PollingStation;
-import com.anosym.elexar.facade.ConstituencyFacade;
 import com.anosym.elexar.facade.CountryFacade;
-import com.anosym.elexar.facade.CountyFacade;
-import com.anosym.elexar.facade.CountyWardFacade;
 import com.anosym.elexar.facade.ElectiveRegionBoundaryFacade;
 import com.anosym.elexar.facade.ElectiveRegionFacade;
-import com.anosym.elexar.mapperdomain.facade.MappedConstituencyFacade;
-import com.anosym.elexar.mapperdomain.facade.MappedCountyFacade;
-import com.anosym.elexar.mapperdomain.facade.MappedPollingFacade;
-import com.anosym.elexar.mapperdomain.facade.MappedWardFacade;
 import com.anosym.jflemax.geometry.Coordinate;
 import com.anosym.jflemax.geometry.Polygon;
 import java.math.BigDecimal;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -34,40 +26,26 @@ import static com.anosym.jflemax.geometry.Polygon.fromPolygonString;
  * @author marembo
  */
 @Singleton
-@Startup
 public class MappedDomainManager {
 
     @PersistenceContext(unitName = "ElexarPU")
     private EntityManager em;
-    @EJB
-    private MappedCountyFacade mappedCountyFacade;
-    @EJB
-    private MappedConstituencyFacade mappedConstituencyFacade;
-    @EJB
-    private MappedWardFacade mappedWardFacade;
-    @EJB
-    private MappedPollingFacade mappedPollingFacade;
 
     @EJB
     private CountryFacade countryFacade;
-    @EJB
-    private CountyFacade countyFacade;
-    @EJB
-    private ConstituencyFacade constituencyFacade;
-    @EJB
-    private CountyWardFacade countyWardFacade;
     @EJB
     private ElectiveRegionFacade electiveRegionFacade;
     @EJB
     private ElectiveRegionBoundaryFacade electiveRegionBoundaryFacade;
 
-    @PostConstruct
-    void mapDomains() {
+    @Asynchronous
+    public void mapDomains() {
         final String map = "elexar.mapDomains";
         final boolean doMap = Boolean.valueOf(System.getProperty(map, "false"));
         if (doMap) {
             mapCounty();
         }
+        normalizeElectiveRegions();
     }
 
     void mapPollingStations(final CountyWard countyWard, final int wardId) {
@@ -151,4 +129,16 @@ public class MappedDomainManager {
     private void addBoundary(final ElectiveRegionBoundary boundary) {
         electiveRegionBoundaryFacade.create(boundary);
     }
+
+    public void normalizeElectiveRegions() {
+        //countywards
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyWardElectiveRegions());
+        //constituency
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findConstituencyElectiveRegions());
+        //county
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyElectiveRegions());
+        //country
+        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountryElectiveRegions());
+    }
+
 }

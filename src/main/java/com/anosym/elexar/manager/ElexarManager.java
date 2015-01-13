@@ -14,6 +14,7 @@ import com.anosym.elexar.facade.ElectiveRegionFacade;
 import com.anosym.elexar.facade.ElectiveRegionFlaggedIssueFacade;
 import com.anosym.elexar.facade.PoliticalAgentFacade;
 import com.anosym.elexar.facade.PollingStationFacade;
+import com.anosym.elexar.mapperdomain.MappedDomainManager;
 import com.anosym.elexar.util.FlaggedIssueType;
 import com.anosym.jflemax.validation.PageInformation;
 import com.anosym.utilities.FormattedCalendar;
@@ -22,7 +23,6 @@ import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.DependsOn;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
@@ -37,7 +37,6 @@ import javax.enterprise.context.ApplicationScoped;
 @Singleton
 @ApplicationScoped
 @Startup
-@DependsOn("MappedDomainManager")
 public class ElexarManager {
 
     private static final BigDecimal MIDDAY_EXPECTED_TURNOUT = BigDecimal.valueOf(50.00);
@@ -84,23 +83,13 @@ public class ElexarManager {
     private static final int POLLING_STATION_PAGE = 100;
     private int currentOverTurnoutRange[] = {0, POLLING_STATION_PAGE};
 
-    ;
+    @EJB
+    private MappedDomainManager mappedDomainManager;
 
-  @PostConstruct
+    @PostConstruct
     public void onStart() {
         PageInformation.onApplicationStart();
-        normalizeElectiveRegions();
-    }
-
-    private void normalizeElectiveRegions() {
-        //countywards
-        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyWardElectiveRegions());
-        //constituency
-        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findConstituencyElectiveRegions());
-        //county
-        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountyElectiveRegions());
-        //country
-        electiveRegionFacade.normalizeElectiveRegions(electiveRegionFacade.findCountryElectiveRegions());
+        mappedDomainManager.mapDomains();
     }
 
     public void normalizeElectiveRegionRegisteredVoters() {
