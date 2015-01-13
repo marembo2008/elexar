@@ -1,19 +1,14 @@
-package com.anosym.elexar.facade;
+package com.anosym.elexar.mapperdomain.facade;
 
 import java.util.List;
-import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
-
-import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
 
 /**
  *
  * @author marembo
- * @param <T>
  */
 public abstract class AbstractFacade<T> {
-
-    private final Class<T> entityClass;
+    private Class<T> entityClass;
 
     public AbstractFacade(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -21,12 +16,10 @@ public abstract class AbstractFacade<T> {
 
     protected abstract EntityManager getEntityManager();
 
-    @TransactionAttribute(REQUIRES_NEW)
     public void create(T entity) {
         getEntityManager().persist(entity);
     }
 
-    @TransactionAttribute(REQUIRES_NEW)
     public void edit(T entity) {
         getEntityManager().merge(entity);
     }
@@ -49,7 +42,7 @@ public abstract class AbstractFacade<T> {
         javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
         javax.persistence.Query q = getEntityManager().createQuery(cq);
-        q.setMaxResults(range[1] - range[0]);
+        q.setMaxResults(range[1] - range[0] + 1);
         q.setFirstResult(range[0]);
         return q.getResultList();
     }
@@ -61,4 +54,5 @@ public abstract class AbstractFacade<T> {
         javax.persistence.Query q = getEntityManager().createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
     }
+
 }

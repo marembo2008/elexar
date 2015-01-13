@@ -76,7 +76,6 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
             electiveRegion.setPopulation(totalPopulation);
             electiveRegion.setRegisteredVoters(totalRegisteredVoters);
             edit(electiveRegion);
-
         }
     }
 
