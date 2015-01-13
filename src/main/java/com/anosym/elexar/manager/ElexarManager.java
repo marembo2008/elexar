@@ -5,14 +5,11 @@ import com.anosym.elexar.ElectiveRegion;
 import com.anosym.elexar.FlaggedIssue;
 import com.anosym.elexar.PollingStation;
 import com.anosym.elexar.controller.ElexarController;
-import com.anosym.elexar.facade.ElectionMalpracticeDataFacade;
-import com.anosym.elexar.facade.ElectionMalpracticeFacade;
 import com.anosym.elexar.facade.ElectionResultFacade;
 import com.anosym.elexar.facade.ElectionTurnoutFacade;
 import com.anosym.elexar.facade.ElectionTurnoutReportFacade;
 import com.anosym.elexar.facade.ElectiveRegionFacade;
 import com.anosym.elexar.facade.ElectiveRegionFlaggedIssueFacade;
-import com.anosym.elexar.facade.PoliticalAgentFacade;
 import com.anosym.elexar.facade.PollingStationFacade;
 import com.anosym.elexar.mapperdomain.MappedDomainManager;
 import com.anosym.elexar.util.FlaggedIssueType;
@@ -22,12 +19,10 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.TimerService;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
@@ -39,7 +34,6 @@ import javax.enterprise.context.ApplicationScoped;
 @Startup
 public class ElexarManager {
 
-    private static final BigDecimal MIDDAY_EXPECTED_TURNOUT = BigDecimal.valueOf(50.00);
     private static Calendar POLLING_STATION_OPENING_TIME;
     private static boolean DEBUG_MODE = true;
 
@@ -58,19 +52,11 @@ public class ElexarManager {
         now.set(Calendar.SECOND, 0);
         return (POLLING_STATION_OPENING_TIME = now);
     }
-    private static final long SCHEDULED_TIME_OUT = 60000;
-    @Resource
-    private TimerService timerService;
+
     @EJB
     private PollingStationFacade pollingStationFacade;
     @EJB
     private ElectionResultFacade electionResultFacade;
-    @EJB
-    private ElectionMalpracticeDataFacade electionMalpracticeDataFacade;
-    @EJB
-    private ElectionMalpracticeFacade electionMalpracticeFacade;
-    @EJB
-    private PoliticalAgentFacade politicalAgentFacade;
     @EJB
     private ElectiveRegionFacade electiveRegionFacade;
     @EJB
@@ -79,9 +65,9 @@ public class ElexarManager {
     private ElectionTurnoutReportFacade electionTurnoutReportFacade;
     @EJB
     private ElectionTurnoutFacade electionTurnoutFacade;
-    private int turnoutRange[] = {0, POLLING_STATION_PAGE};
+    private final int turnoutRange[] = {0, POLLING_STATION_PAGE};
     private static final int POLLING_STATION_PAGE = 100;
-    private int currentOverTurnoutRange[] = {0, POLLING_STATION_PAGE};
+    private final int currentOverTurnoutRange[] = {0, POLLING_STATION_PAGE};
 
     @EJB
     private MappedDomainManager mappedDomainManager;
@@ -129,7 +115,7 @@ public class ElexarManager {
 //    }
     }
 
-    @Schedule(hour = "*", minute = "*/2")
+    @Schedule(hour = "*", minute = "*/2", persistent = false)
     public void determineOverturnOutIssue() {
         System.err.println("determineOverturnOutIssue:......");
         List<PollingStation> pollingStations = pollingStationFacade.findRange(currentOverTurnoutRange);
@@ -153,12 +139,12 @@ public class ElexarManager {
         currentOverTurnoutRange[1] += POLLING_STATION_PAGE;
     }
 
-    @Schedule(hour = "*", minute = "*/1")
+    @Schedule(hour = "*", minute = "*/1", persistent = false)
     public void generateElectionResults() {
         electionResultFacade.addTestElectionResultData();
     }
 
-    @Schedule(hour = "*", minute = "*/1")
+    @Schedule(hour = "*", minute = "*/1", persistent = false)
     public void addTestTurnoutData() {
         try {
             int count = Math.max(1, pollingStationFacade.count());
