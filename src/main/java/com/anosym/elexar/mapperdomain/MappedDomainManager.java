@@ -145,13 +145,6 @@ public class MappedDomainManager {
     }
 
     private void addBoundary(final ElectiveRegionBoundary boundary) {
-        final String sql = String.format(
-                "INSERT INTO ElectiveRegionBoundary (boundaryId, centreCoordinate, regionBoundaries, electiveRegion_regionId)"
-                + " VALUES (%s, GeomFromText('%s'), GeomFromText('%s'), %s);",
-                boundary.getBoundaryId(), boundary.getCentreCoordinate().toPointString(),
-                boundary.getRegionBoundaries().toPolygonString(), boundary.getElectiveRegion().getRegionId());
-        System.out.println(sql);
-        em.createNativeQuery(sql).executeUpdate();
-
+        electiveRegionBoundaryFacade.create(boundary);
     }
 }

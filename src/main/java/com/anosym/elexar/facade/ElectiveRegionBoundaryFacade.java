@@ -10,8 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
 
 /**
  *
@@ -95,4 +98,16 @@ public class ElectiveRegionBoundaryFacade extends AbstractFacade<ElectiveRegionB
         }
         return electiveRegionBoundary;
     }
+
+    @Override
+    @TransactionAttribute(REQUIRES_NEW)
+    public void create(ElectiveRegionBoundary boundary) {
+        final String sql = String.format(
+                "INSERT INTO ElectiveRegionBoundary (boundaryId, centreCoordinate, regionBoundaries, electiveRegion_regionId)"
+                + " VALUES (%s, GeomFromText('%s'), GeomFromText('%s'), %s);",
+                boundary.getBoundaryId(), boundary.getCentreCoordinate().toPointString(),
+                boundary.getRegionBoundaries().toPolygonString(), boundary.getElectiveRegion().getRegionId());
+        em.createNativeQuery(sql).executeUpdate();
+    }
+
 }
