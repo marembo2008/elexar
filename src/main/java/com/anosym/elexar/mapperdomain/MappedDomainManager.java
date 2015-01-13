@@ -80,7 +80,7 @@ public class MappedDomainManager {
 
     void mapWards(final Constituency constituency, final int constituencyId) {
         final List<MappedWard> mappedWards = em.createNamedQuery("MappedWard.findConstituencyWards")
-                .setParameter("constituency_id", constituency).getResultList();
+                .setParameter("constituency_id", constituencyId).getResultList();
         for (final MappedWard ward : mappedWards) {
             final CountyWard countyWard = new CountyWard();
             countyWard.setParentElectiveRegion(constituency);
