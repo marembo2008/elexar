@@ -88,7 +88,7 @@ public class MappedDomainManager {
             electiveRegionFacade.create(countyWard);
 
             //no boundaries
-            mapPollingStations(countyWardFacade.find(countyWard.getRegionId()), ward.getId());
+            mapPollingStations(countyWard, ward.getId());
         }
     }
 
@@ -113,7 +113,7 @@ public class MappedDomainManager {
             countyBoundary.setRegionBoundaries(boundaries);
             addBoundary(countyBoundary);
 
-            mapWards(constituencyFacade.find(constituency.getRegionId()), constituencyId);
+            mapWards(constituency, constituencyId);
 
         }
 
@@ -140,19 +140,16 @@ public class MappedDomainManager {
             countyBoundary.setRegionBoundaries(boundaries);
             addBoundary(countyBoundary);
 
-            mapConstituency(countyFacade.find(county.getRegionId()));
+            mapConstituency(county);
         }
     }
 
     private void addBoundary(final ElectiveRegionBoundary boundary) {
-        final String sql = "INSERT INTO ElectiveRegionBoundary (boundaryId, centreCoordinate, regionBoundaries,electiveRegion_regionId)"
-                + " VALUES (:boundaryId, GeomFromText(:centreCoordinate), GeomFromText(:regionBoundaries), :electiveRegion_regionId);";
-        em.createNativeQuery(sql)
-                .setParameter("boundaryId", boundary.getBoundaryId())
-                .setParameter("centreCoordinate", boundary.getCentreCoordinate().toPointString())
-                .setParameter("regionBoundaries", boundary.getRegionBoundaries().toPolygonString())
-                .setParameter("electiveRegion_regionId", boundary.getElectiveRegion().getRegionId())
-                .executeUpdate();
+        final String sql = String.format("INSERT INTO ElectiveRegionBoundary (boundaryId, centreCoordinate, regionBoundaries,electiveRegion_regionId)"
+                + " VALUES (%s, GeomFromText('%s'), GeomFromText('%s'), %s);",
+                                         boundary.getBoundaryId(), boundary.getCentreCoordinate().toPointString(),
+                                         boundary.getRegionBoundaries().toPolygonString(), boundary.getElectiveRegion().getRegionId());
+        em.createNativeQuery(sql).executeUpdate();
 
     }
 }
