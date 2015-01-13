@@ -138,11 +138,9 @@ public class ElexarManager {
                 ElectionTurnout et = electionTurnoutFacade.getElectionTurnout(er);
                 boolean electiveRegionHasThisFlaggedIssue = electiveRegionFlaggedIssueFacade
                         .hasFlaggedIssue(er, FlaggedIssueType.OVER_VOTER_TURNOUT);
-                System.err.println("determineOverturnOutIssue:electiveRegionHasThisFlaggedIssue=" + electiveRegionHasThisFlaggedIssue);
                 if (!electiveRegionHasThisFlaggedIssue) {
                     long registeredVoters = er.getRegisteredVoters();
                     long totalTurnout = electionTurnoutReportFacade.getTotalVotesCast(et);
-                    System.err.println("determineOverturnOutIssue: registeredVoters=" + registeredVoters + ", totalTurnout=" + totalTurnout);
                     if (totalTurnout > registeredVoters) {
                         String issue = "Voter turnout more than registered voters:(Voter Turnout: " + totalTurnout + ", Registered Voters: " + registeredVoters + ")";
                         FlaggedIssue flaggedIssue = new FlaggedIssue(FlaggedIssueType.OVER_VOTER_TURNOUT, issue);
@@ -167,9 +165,6 @@ public class ElexarManager {
             for (final ElectiveRegion e : pollingStationFacade.findRange(turnoutRange)) {
                 electionTurnoutFacade.doAddTestTurnoutData(e);
             }
-            System.err.println("addTestTurnoutData-count: " + count);
-            System.err.println("addTestTurnoutData-first: " + turnoutRange[0]);
-            System.err.println("addTestTurnoutData-page: " + turnoutRange[1]);
             turnoutRange[0] = turnoutRange[1] % count;
             turnoutRange[1] += POLLING_STATION_PAGE;
         } catch (Exception e) {

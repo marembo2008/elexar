@@ -91,8 +91,6 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
                 long totalCountyVoters = pollingSumTotal.longValue();
                 electiveRegion.setRegisteredVoters(totalCountyVoters);
                 edit(electiveRegion);
-                System.err.println(
-                        "normalizeRegisteredVoters: " + electiveRegion + ": " + electiveRegion.getElectiveRegionType() + ": " + pollingSumTotal);
                 return totalCountyVoters;
             }
             return 0l;
@@ -307,7 +305,6 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
             List<PollingStation> pollingStations = getEntityManager()
                     .createNativeQuery(sql, PollingStation.class)
                     .getResultList();
-            System.err.println("Polling Stations: " + pollingStations);
             return pollingStations;
         } catch (Exception e) {
             ElexarController.logError(e);
