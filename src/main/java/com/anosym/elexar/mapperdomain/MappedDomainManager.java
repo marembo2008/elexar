@@ -121,7 +121,7 @@ public class MappedDomainManager {
 
     void mapCounty() {
         //because of the geometry.
-        final Country country = countryFacade.find(1);
+        final Country country = countryFacade.find(1l);
         final String sql = "SELECT id, county_name, county_code, AsText(geometry), longitude, latitude from county";
         final List<Object[]> counties = em.createNativeQuery(sql).getResultList();
         for (final Object[] countyData : counties) {
