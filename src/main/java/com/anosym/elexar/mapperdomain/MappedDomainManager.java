@@ -63,7 +63,11 @@ public class MappedDomainManager {
 
     @PostConstruct
     void mapDomains() {
-        mapCounty();
+        final String map = "elexar.mapDomains";
+        final boolean doMap = Boolean.valueOf(System.getProperty(map, "false"));
+        if (doMap) {
+            mapCounty();
+        }
     }
 
     void mapPollingStations(final CountyWard countyWard, final int wardId) {
