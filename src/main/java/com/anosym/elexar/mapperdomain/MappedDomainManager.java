@@ -111,7 +111,7 @@ public class MappedDomainManager {
             final Coordinate centreCoordinate = new Coordinate(latitude, longitude);
             countyBoundary.setCentreCoordinate(centreCoordinate);
             countyBoundary.setRegionBoundaries(boundaries);
-            electiveRegionBoundaryFacade.create(countyBoundary);
+            addBoundary(countyBoundary);
 
             mapWards(constituencyFacade.find(constituency.getRegionId()), constituencyId);
 
@@ -138,9 +138,21 @@ public class MappedDomainManager {
             final Coordinate centreCoordinate = new Coordinate(latitude, longitude);
             countyBoundary.setCentreCoordinate(centreCoordinate);
             countyBoundary.setRegionBoundaries(boundaries);
-            electiveRegionBoundaryFacade.create(countyBoundary);
+            addBoundary(countyBoundary);
 
             mapConstituency(countyFacade.find(county.getRegionId()));
         }
+    }
+
+    private void addBoundary(final ElectiveRegionBoundary boundary) {
+        final String sql = "INSERT INTO ElectiveRegionBoundary (boundaryId, centreCoordinate, regionBoundaries,electiveRegion_regionId)"
+                + " VALUES (:boundaryId, GeomFromText(:centreCoordinate), GeomFromText(:regionBoundaries), :electiveRegion_regionId);";
+        em.createNativeQuery(sql)
+                .setParameter("boundaryId", boundary.getBoundaryId())
+                .setParameter("centreCoordinate", boundary.getCentreCoordinate().toPointString())
+                .setParameter("regionBoundaries", boundary.getRegionBoundaries().toPolygonString())
+                .setParameter("electiveRegion_regionId", boundary.getElectiveRegion().getRegionId())
+                .executeUpdate();
+
     }
 }
