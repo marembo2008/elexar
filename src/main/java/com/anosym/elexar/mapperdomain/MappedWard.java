@@ -21,14 +21,14 @@ public class MappedWard implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     private int id;
-    private Long constituency_id;
+    private int constituency_id;
     private String ward_name;
 
     public int getId() {
         return id;
     }
 
-    public Long getConstituency_id() {
+    public int getConstituency_id() {
         return constituency_id;
     }
 
