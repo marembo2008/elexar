@@ -81,7 +81,6 @@ public class ElectiveRegionFacade extends AbstractFacade<ElectiveRegion> {
 
     private long normalizeRegisteredVoters(ElectiveRegion electiveRegion) {
         if (electiveRegion.getElectiveRegionType() == ElectiveRegionType.COUNTY_WARD) {
-            System.err.println("normalizeRegisteredVoters: " + electiveRegion + ": " + electiveRegion.getElectiveRegionType());
             String sql = "SELECT SUM(P.registeredVoters) FROM PollingStation P, CountyWard W WHERE P.parentElectiveRegion_regionId = W.regionId AND W.regionId = " + electiveRegion
                     .getRegionId();
             BigDecimal pollingSumTotal = (BigDecimal) getEntityManager()

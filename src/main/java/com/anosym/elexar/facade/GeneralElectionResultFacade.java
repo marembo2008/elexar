@@ -161,13 +161,10 @@ public abstract class GeneralElectionResultFacade<T extends ElectionResult> {
     public void addTestElectionResultData() {
         try {
             ElectiveRegionFacade electiveRegionFacade = getElectiveRegionFacade();
-            System.err.println("electiveRegionFacade: " + electiveRegionFacade);
             List<PollingStation> pollingStations = electiveRegionFacade.findPollingStationWithoutElectionResult();
-            System.err.println("Polling Stations without result: " + pollingStations);
             for (ElectiveRegion e : pollingStations) {
                 doAddTestElectionResultData(e);
             }
-            System.err.println("addTestElectionResultData: returning");
         } catch (Exception e) {
             ElexarController.logError(e);
         }
@@ -201,15 +198,12 @@ public abstract class GeneralElectionResultFacade<T extends ElectionResult> {
                 for (Candidate cn : candidates) {
                     votesGained = r.nextInt(max) / (r.nextInt(2) + 1);
                     results.put(cn, votesGained);
-                    System.err.println(cn + "=votesGained: " + votesGained);
                     max -= votesGained;
                 }
                 int n = max / (r.nextInt(10) + 1);
                 int votesDisputed = n > 0 ? r.nextInt(n) : 0;
                 n = Math.min(max - votesDisputed, votesDisputed) / (r.nextInt(20) + 1);
                 int votesRejected = n > 0 ? r.nextInt(n) : 0;
-                System.err.println("votesDisputed: " + votesDisputed);
-                System.err.println("votesRejected: " + votesRejected);
                 addProvisionalElectionResult(e, results, votesDisputed, votesRejected);
             }
         } catch (Exception ex) {
